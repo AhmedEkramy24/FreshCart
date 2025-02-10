@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React from "react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 export default function Brands() {
   function getCategories() {
@@ -12,6 +14,33 @@ export default function Brands() {
     queryFn: getCategories,
     select: (data) => data.data.data,
   });
+
+  const MySwal = withReactContent(Swal);
+
+  async function getSubBrand(id) {
+    try {
+      let { data } = await axios.get(
+        `https://ecommerce.routemisr.com/api/v1/brands/${id}`
+      );
+      console.log(data);
+      
+
+      openModal(data.data.image, data.data.name);
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+
+  function openModal(imgUrl, name) {
+    MySwal.fire({
+      title: name,
+      imageUrl: imgUrl,
+      imageWidth: 300,
+      imageAlt: name,
+      confirmButtonText: "Close",
+      confirmButtonColor: "#099309",
+    });
+  }
 
   return (
     <>
@@ -25,6 +54,9 @@ export default function Brands() {
             <div className="container mt-14 gap-4 flex flex-wrap justify-center">
               {data.map((brand, index) => (
                 <div
+                onClick={()=>{
+                  getSubBrand(brand._id)
+                }}
                   key={index}
                   className="md:w-1/3 lg:w-1/5 border border-slate-300  hover:scale-[1.05] hover:border-main p-2 cursor-pointer"
                 >
